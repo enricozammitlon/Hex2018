@@ -9,6 +9,8 @@ maintanance = 0.3 #EUR/km
 
 charging_energy = 0.1 #EUR/kW
 
+eff = 1.5 #kWh/km
+
 driver = 40 #EUR/h
 
 passenger_weight = 73 #kg
@@ -35,6 +37,7 @@ class C:
 
 #Buses
 class bus:
+	available = False
 	def __init__(self, battery, route):
 		self.battery = battery
 		self.route = route.copy()
@@ -43,22 +46,50 @@ class bus:
 		self.route = route.copy()
 
 class LE(bus):
-	price = 350000 #EUR
+	def price(self):
+		return  350000 + self.battery.price #EUR
 	length = 9950 #mm
 	max_weight = 14870 #kg
-	weight = 7930 #kg
+	unladen_weight = 7930 #kg
+	def weight(self):
+       		return self.max_weight - self.unladen_weight - self.battery.weight
 
 class LF(bus):
-	price = 390000 #EUR
+#price = 390000 + battery.price #EUR
+	def price(self):
+		return  390000 + self.battery.price #EUR
 	length = 12000 #mm
 	max_weight = 19500 #kg
-	weight = 10645 #kg
+	unladen_weight = 10645 #kg
+	def weight(self):
+       		return self.max_weight - self.unladen_weight - self.battery.weight
 
 class LFA(bus):
-	price = 570000 #EUR
+#	price = 570000 + battery.price #EUR
+	def price(self):
+		return  570000 + self.battery.price #EUR
 	length = 18750 #mm
 	max_weight  = 29000 #kg
-	weight = 16125 #kg
+	unladen_weight = 16125 #kg
+	def weight(self):
+       		return self.max_weight - self.unladen_weight - self.battery.weight
+
+
+
+def busGen(route, time):
+
+	busWeights = [
+		LE(MP(route['distance']), route),
+		LF(MP(route['distance']), route),
+		LFA(MP(route['distance']), route),
+		LE(HP(route['distance']), route),
+		LF(HP(route['distance']), route),
+		LFA(HP(route['distance']), route)
+	]
+
+	return min([x.price() for x in busWeights if x.weight() >= passenger_weight * route[time]['passengers'] * route[time]['frequency']/(4*60)])
+
+		
 
 #Batteries
 class MP:
@@ -69,7 +100,9 @@ class MP:
 	max_discharge_I = 450 #A
 	charge_type = 'slow'
 	cycles = 3000
-
+	def __init__(self, distance):
+		self.weight = 1.5*1000*distance/self.energy_rho
+		self.price = 1.5*distance*self.energy_cost
 class HP:
 	energy_cost = 1150 #EUR/kWh
 	energy_rho = 60 #Wh/kg
@@ -78,6 +111,9 @@ class HP:
 	max_discharge_I = 500 #A
 	charge_type = 'fast'
 	cycles = 6500
+	def __init__(self, distance):
+		self.weight = 1.5*1000*distance/self.energy_rho
+		self.price = 1.5*distance*self.energy_cost
 
 #Routes
 #Setup in JSON-style dictionary array format
@@ -115,3 +151,5 @@ R9 = makeRoute(35, 60, 600, 30, 200, 30, 600, 30, 200, 30, 2000, 20)
 R10= makeRoute(30, 60, 1000, 30, 600, 30, 1000, 30, 600, 30, 3000, 20)
 R11= makeRoute(40, 70, 400, 30, 100, 60, 400, 30, 100, 60, 3000, 20)
 R12= makeRoute(35, 60, 1000, 30, 200, 60, 1000, 60, 200, 30, 2000, 20)
+
+routes = [R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12]
