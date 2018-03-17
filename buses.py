@@ -37,7 +37,10 @@ class C:
 class bus:
 	def __init__(self, battery, route):
 		self.battery = battery
-		self.route = route
+		self.route = route.copy()
+	
+	def newRoute(self, route):
+		self.route = route.copy()
 
 class LE(bus):
 	price = 350000 #EUR
