@@ -17,7 +17,7 @@ json_file = {'1':[], '2':[], '3':[], '4':[], '5':[], '6':[], '7':[], '8':[], '9'
 for route in routes:
 	b = busGen(route, 't1', bus_id)
 	busses.append(b)
-	json_file[str(route['_id'])].append({"_id":str(bus_id), "created_at" : "0", " _type": str(b.bus_type)})
+	json_file[str(route['_id'])].append({"_id":str(bus_id), "created_at" : "0", " _type": str(b.bus_type), 'status': True})
 	bus_id +=1
 
 maintenance = 0
@@ -43,6 +43,7 @@ while count < 4*60:
 				maintenance += 0.3*bus.distance_travelled
 				print("Terminates here")
 				bus.available = True
+				json_file[str(bus.route['_id'])].append({"_id":str(bus.bus_id), "created_at" :str(count) , " _type": str(bus.bus_type), 'status': False})
 				bus.newRoute(None)
 				bus.distance_travelled = 0
 				available_chargers = [i for i in chargers if i.available]
@@ -70,7 +71,7 @@ while count < 4*60:
 				print("Creating new bus")
 				b = busGen(R, 't1', bus_id)
 				busses.append(b)
-				json_file[str(R['_id'])].append({"_id":str(bus_id), "created_at" : str(count), " _type": str(b.bus_type)})
+				json_file[str(R['_id'])].append({"_id":str(bus_id), "created_at" : str(count), " _type": str(b.bus_type), 'status':True})
 				bus_id += 1
 			else:
 				print("Reassigning old bus")
@@ -95,6 +96,7 @@ while count >= 4*60 and count < 2*4*60:
 				print("Terminates here")
 				maintenance += 0.3*bus.distance_travelled
 				bus.available = True
+				json_file[str(bus.route['_id'])].append({"_id":str(bus.bus_id), "created_at" :str(count) , " _type": str(bus.bus_type), 'status': False})
 				bus.newRoute(None)
 				bus.distance_travelled = 0
 				available_chargers = [i for i in chargers if i.available]
@@ -124,7 +126,7 @@ while count >= 4*60 and count < 2*4*60:
 				print("Creating new bus")
 				b = busGen(R, 't1', bus_id)
 				busses.append(b)
-				json_file[str(R['_id'])].append({"_id":str(bus_id), "created_at" : str(count), " _type": str(b.bus_type)})
+				json_file[str(R['_id'])].append({"_id":str(bus_id), "created_at" : str(count), " _type": str(b.bus_type), 'status':True})
 				bus_id += 1
 			else:
 				print("Reassigning old bus")
@@ -146,6 +148,7 @@ while count >= 2*60 and count < 3*4*60:
 				print("Terminates here")
 				maintenance += 0.3*bus.distance_travelled
 				bus.available = True
+				json_file[str(bus.route['_id'])].append({"_id":str(bus.bus_id), "created_at" :str(count) , " _type": str(bus.bus_type), 'status': False})
 				bus.newRoute(None)
 				bus.distance_travelled = 0
 				available_chargers = [i for i in chargers if i.available]
@@ -174,7 +177,7 @@ while count >= 2*60 and count < 3*4*60:
 				print("Creating new bus")
 				b = busGen(R, 't1', bus_id)
 				busses.append(b)
-				json_file[str(R['_id'])].append({"_id":str(bus_id), "created_at" : str(count), " _type": str(b.bus_type)})
+				json_file[str(R['_id'])].append({"_id":str(bus_id), "created_at" : str(count), " _type": str(b.bus_type), 'status':True})
 				bus_id += 1
 			else:
 				print("Reassigning old bus")
@@ -196,6 +199,7 @@ while count >= 3*4*60 and count < 4*4*60:
 				print("Terminates here")
 				maintenance += 0.3*bus.distance_travelled
 				bus.available = True
+				json_file[str(bus.route['_id'])].append({"_id":str(bus.bus_id), "created_at" :str(count) , " _type": str(bus.bus_type), 'status': False})
 				bus.newRoute(None)
 				bus.distance_travelled = 0
 				available_chargers = [i for i in chargers if i.available]
@@ -224,7 +228,7 @@ while count >= 3*4*60 and count < 4*4*60:
 				print("Creating new bus")
 				b = busGen(R, 't1', bus_id)
 				busses.append(b)
-				json_file[str(R['_id'])].append({"_id":str(bus_id), "created_at" : str(count), " _type": str(b.bus_type)})
+				json_file[str(R['_id'])].append({"_id":str(bus_id), "created_at" : str(count), " _type": str(b.bus_type), 'status':True})
 				bus_id += 1
 			else:
 				print("Reassigning old bus")
