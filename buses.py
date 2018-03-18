@@ -46,6 +46,7 @@ class bus:
 		self.battery = battery
 		self.route = route.copy()
 		self.energy = battery.energy_rho * battery.weight/1000		#in kWh
+		self.energy_max = self.energy
 		self.velocity = route['distance']/route['duration']		#in km/min
 	def newRoute(self, route):
 		if route == None:
@@ -104,7 +105,14 @@ def busGen(route, time):
 		LFA(HP(route['distance']), route)
 	]
 
-	return min([x for x in busWeights if x.weight() >= passenger_weight * route[time]['passengers'] * route[time]['frequency']/(4*60)], key=lambda y: y.price())
+	busList = [x for x in busWeights if x.weight() >= passenger_weight * route[time]['passengers'] * route[time]['frequency']/(4*60)] 
+	while not busList:
+		route[time]['frequency'] = route[time]['frequency']/2
+		busList = [x for x in busWeights if x.weight() >= passenger_weight * route[time]['passengers'] * route[time]['frequency']/(4*60)] 
+
+	return min(busList, key=lambda y: y.price())# *(route['stop_freq']/route['distance']) 
+	
+#return min([x for x in busWeights if x.weight() >= passenger_weight * (route['stop_freq']/(1000*route['distance']))* route[time]['passengers'] * route[time]['frequency']/(4*60)], key=lambda y: y.price())# *(route['stop_freq']/route['distance']) 
 
 		
 
@@ -134,7 +142,7 @@ class HP:
 
 #Routes
 #Setup in JSON-style dictionary array format
-		#km	  #min			  #min	                   #min                    #min                    #min       #m         #s
+		#km	  #min			  #min	                   #min                    #min                    #min     #m            #s
 def makeRoute(distance, duration, t1_passengers, t1_freq, t2_passengers, t2_freq, t3_passengers, t3_freq, t4_passengers, t4_freq, stop_freq, stop_duration):
 	routeDict   =  {'distance':distance,
 			'duration':duration,
