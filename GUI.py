@@ -35,6 +35,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8(APP_NAME))
         MainWindow.resize(800, 600)
+        self.colorCodes={"Type1":'blue',"Type2":'red',"Type3":'green'}
         self.counter=0
         self.lines=[]
         self.pres=[]
@@ -130,25 +131,26 @@ class Ui_MainWindow(object):
     def anim(self):
         while(self.playpause!=2):
             for route in range(len(self.lines)):
-                step=self.steps[route]
-                pre=self.pres[route]
-                if(self.playpause==2):
-                    return
-                if(self.outbound[route]==1):
-                    pre+=step
-                else:
-                    pre-=step
-                if(pre>8):
-                    self.outbound[route]=0
-                    pre=8
-                if(pre<0):
-                    self.outbound[route]=1
-                    pre=0
-                self.logOutput[route].setText("Bus %d is %2.2fkm away"%(route,pre))
-                self.pres[route]=pre
-                self.lines[route].set_data([pre], [1])
-                self.canvas.draw()
-                QtCore.QCoreApplication.processEvents()
+                for bus in range(len(route)):
+                    step=self.steps[bus]
+                    pre=self.pres[bus]
+                    if(self.playpause==2):
+                        return
+                    if(self.outbound[bus]==1):
+                        pre+=step
+                    else:
+                        pre-=step
+                    if(pre>8):
+                        self.outbound[bus]=0
+                        pre=8
+                    if(pre<0):
+                        self.outbound[bus]=1
+                        pre=0
+                    self.logOutput[bus].setText("Bus %d is %2.2fkm away"%(bus,pre))
+                    self.pres[bus]=pre
+                    self.lines[bus].set_data([pre], [1])
+                    self.canvas.draw()
+                    QtCore.QCoreApplication.processEvents()
 
     def plot(self):
         self.counter+=1
@@ -165,7 +167,8 @@ class Ui_MainWindow(object):
         # plot dataline
         self.ax.plot(data, 'g')
         self.pres.append(0)
-        self.lines.append(plt.plot([0], [1], marker='o', markersize=6, color="red")[0])
+        for currentBus in range(self.lines):
+            self.lines[currentBus].append(plt.plot([0], [1], marker='o', markersize=6, color="red")[0])
         # refresh canvas
         self.canvas.draw()
 
