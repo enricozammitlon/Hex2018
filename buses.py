@@ -21,16 +21,25 @@ max_battery = 400 #kWh
 
 #Chargers
 class A:
+	def __init__(self, bus):
+		self.bus = bus
+	available = False
 	power = 30 #kW
 	price = 30000 #EUR
 	charge_type = 'slow'
 	max_charge_I = 60 #A
 class B:
+	def __init__(self, bus):
+		self.bus = bus
+	available = False
 	power = 250 #kW
 	price = 155000 #EUR
 	charge_type = 'medium'
 	max_charge_I = 450 #A
 class C:
+	def __init__(self, bus):
+		self.bus = bus
+	available = False
 	power = 450 #kW
 	price = 260000 #EUR
 	charge_type = 'fast'
@@ -42,7 +51,8 @@ class bus:
 	available = False
 	distance_travelled = 0
 	energy_used = 0
-	def __init__(self, battery, route):
+	def __init__(self, battery, route, number):
+		self.bus_id = number
 		self.battery = battery
 		self.route = route.copy()
 		self.energy = battery.energy_rho * battery.weight/1000		#in kWh
@@ -94,15 +104,15 @@ class LFA(bus):
 
 
 
-def busGen(route, time):
+def busGen(route, time, n):
 
 	busWeights = [
-		LE(MP(route['distance']), route),
-		LF(MP(route['distance']), route),
-		LFA(MP(route['distance']), route),
-		LE(HP(route['distance']), route),
-		LF(HP(route['distance']), route),
-		LFA(HP(route['distance']), route)
+		LE(MP(route['distance']), route, n),
+		LF(MP(route['distance']), route, n),
+		LFA(MP(route['distance']), route,n),
+		LE(HP(route['distance']), route, n),
+		LF(HP(route['distance']), route, n),
+		LFA(HP(route['distance']), route,n)
 	]
 
 	busList = [x for x in busWeights if x.weight() >= passenger_weight * route[time]['passengers'] * route[time]['frequency']/(4*60)] 
@@ -110,9 +120,8 @@ def busGen(route, time):
 		route[time]['frequency'] = route[time]['frequency']/2
 		busList = [x for x in busWeights if x.weight() >= passenger_weight * route[time]['passengers'] * route[time]['frequency']/(4*60)] 
 
-	return min(busList, key=lambda y: y.price())# *(route['stop_freq']/route['distance']) 
+	return min(busList, key=lambda y: y.price()) 
 	
-#return min([x for x in busWeights if x.weight() >= passenger_weight * (route['stop_freq']/(1000*route['distance']))* route[time]['passengers'] * route[time]['frequency']/(4*60)], key=lambda y: y.price())# *(route['stop_freq']/route['distance']) 
 
 		
 
