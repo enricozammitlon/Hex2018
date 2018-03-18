@@ -21,16 +21,25 @@ max_battery = 400 #kWh
 
 #Chargers
 class A:
+	def __init__(self, bus):
+		self.bus = bus
+	available = False
 	power = 30 #kW
 	price = 30000 #EUR
 	charge_type = 'slow'
 	max_charge_I = 60 #A
 class B:
+	def __init__(self, bus):
+		self.bus = bus
+	available = False
 	power = 250 #kW
 	price = 155000 #EUR
 	charge_type = 'medium'
 	max_charge_I = 450 #A
 class C:
+	def __init__(self, bus):
+		self.bus = bus
+	available = False
 	power = 450 #kW
 	price = 260000 #EUR
 	charge_type = 'fast'
@@ -42,14 +51,21 @@ class bus:
 	available = False
 	distance_travelled = 0
 	energy_used = 0
-	def __init__(self, battery, route):
+	def __init__(self, battery, route, number):
+		self.bus_id = number
 		self.battery = battery
 		self.route = route.copy()
-		self.energy = battery.energy_rho * battery.weight
+		self.energy = battery.energy_rho * battery.weight/1000		#in kWh
+		self.energy_max = self.energy
 		self.velocity = route['distance']/route['duration']		#in km/min
 	def newRoute(self, route):
-		self.route = route.copy()
-		self.velocity = route['distance']/route['duration']		#In km/min
+		if route == None:
+			self.route = None
+			self.velocity = 0
+		else:
+			self.route = route.copy()
+			self.velocity = route['distance']/route['duration']		#In km/min
+			self.available = False
 
 class LE(bus):
 	def price(self):
@@ -69,8 +85,6 @@ class LF(bus):
 	length = 12000 #mm
 	max_weight = 19500 #kg
 	unladen_weight = 10645 #kg
-#	def weight(self):
-#	return self.max_weight - self.unladen_weight - self.battery.weight
 	def weight(self):
 		people_weight =  self.max_weight - self.unladen_weight - self.battery.weight
 		self.people = people_weight/passenger_weight
@@ -83,8 +97,6 @@ class LFA(bus):
 	length = 18750 #mm
 	max_weight  = 29000 #kg
 	unladen_weight = 16125 #kg
-#	def weight(self):
-#      		return self.max_weight - self.unladen_weight - self.battery.weight
 	def weight(self):
 		people_weight =  self.max_weight - self.unladen_weight - self.battery.weight
 		self.people = people_weight/passenger_weight
@@ -92,18 +104,24 @@ class LFA(bus):
 
 
 
-def busGen(route, time):
+def busGen(route, time, n):
 
 	busWeights = [
-		LE(MP(route['distance']), route),
-		LF(MP(route['distance']), route),
-		LFA(MP(route['distance']), route),
-		LE(HP(route['distance']), route),
-		LF(HP(route['distance']), route),
-		LFA(HP(route['distance']), route)
+		LE(MP(route['distance']), route, n),
+		LF(MP(route['distance']), route, n),
+		LFA(MP(route['distance']), route,n),
+		LE(HP(route['distance']), route, n),
+		LF(HP(route['distance']), route, n),
+		LFA(HP(route['distance']), route,n)
 	]
 
-	return min([x for x in busWeights if x.weight() >= passenger_weight * route[time]['passengers'] * route[time]['frequency']/(4*60)], key=lambda y: y.price())
+	busList = [x for x in busWeights if x.weight() >= passenger_weight * route[time]['passengers'] * route[time]['frequency']/(4*60)] 
+	while not busList:
+		route[time]['frequency'] = route[time]['frequency']/2
+		busList = [x for x in busWeights if x.weight() >= passenger_weight * route[time]['passengers'] * route[time]['frequency']/(4*60)] 
+
+	return min(busList, key=lambda y: y.price()) 
+	
 
 		
 
@@ -133,7 +151,7 @@ class HP:
 
 #Routes
 #Setup in JSON-style dictionary array format
-		#km	  #min			  #min	                   #min                    #min                    #min       #m         #s
+		#km	  #min			  #min	                   #min                    #min                    #min     #m            #s
 def makeRoute(distance, duration, t1_passengers, t1_freq, t2_passengers, t2_freq, t3_passengers, t3_freq, t4_passengers, t4_freq, stop_freq, stop_duration):
 	routeDict   =  {'distance':distance,
 			'duration':duration,
