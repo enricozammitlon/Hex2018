@@ -1,5 +1,5 @@
 from buses import *
-
+import json
 #At 6:00, each route needs one bus
 #Therefore
 
@@ -9,9 +9,15 @@ busses = []		#One of these is spelt wrong... Is it buses or busses??
 chargers = []
 bus_id = 0
 
+json_file = {'1':[], '2':[], '3':[], '4':[], '5':[], '6':[], '7':[], '8':[], '9':[], '10':[], '11':[], '12':[]}
+			 
+
+
 			#Initialise a bus for each route
 for route in routes:
-	busses.append(busGen(route, 't1', bus_id))
+	b = busGen(route, 't1', bus_id)
+	busses.append(b)
+	json_file[str(route['_id'])].append({"_id":str(bus_id), "created_at" : "0", " _type": str(b.bus_type)})
 	bus_id +=1
 
 maintenance = 0
@@ -62,7 +68,9 @@ while count < 4*60:
 			print([b.bus_type for b in available_busses])
 			if not available_busses:
 				print("Creating new bus")
-				busses.append(busGen(R, 't1', bus_id))
+				b = busGen(R, 't1', bus_id)
+				busses.append(b)
+				json_file[str(R['_id'])].append({"_id":str(bus_id), "created_at" : str(count), " _type": str(b.bus_type)})
 				bus_id += 1
 			else:
 				print("Reassigning old bus")
@@ -114,7 +122,9 @@ while count >= 4*60 and count < 2*4*60:
 			print([b.bus_type for b in available_busses])
 			if not available_busses:
 				print("Creating new bus")
-				busses.append(busGen(R, 't2', bus_id))
+				b = busGen(R, 't1', bus_id)
+				busses.append(b)
+				json_file[str(R['_id'])].append({"_id":str(bus_id), "created_at" : str(count), " _type": str(b.bus_type)})
 				bus_id += 1
 			else:
 				print("Reassigning old bus")
@@ -162,7 +172,9 @@ while count >= 2*60 and count < 3*4*60:
 			print([b.bus_type for b in available_busses])
 			if not available_busses:
 				print("Creating new bus")
-				busses.append(busGen(R, 't3', bus_id))
+				b = busGen(R, 't1', bus_id)
+				busses.append(b)
+				json_file[str(R['_id'])].append({"_id":str(bus_id), "created_at" : str(count), " _type": str(b.bus_type)})
 				bus_id += 1
 			else:
 				print("Reassigning old bus")
@@ -210,7 +222,9 @@ while count >= 3*4*60 and count < 4*4*60:
 			print([b.bus_type for b in available_busses])
 			if not available_busses:
 				print("Creating new bus")
-				busses.append(busGen(R, 't4', bus_id))
+				b = busGen(R, 't1', bus_id)
+				busses.append(b)
+				json_file[str(R['_id'])].append({"_id":str(bus_id), "created_at" : str(count), " _type": str(b.bus_type)})
 				bus_id += 1
 			else:
 				print("Reassigning old bus")
@@ -225,3 +239,5 @@ print("Maintenance cost = " + str(maintenance))
 print("Pay cost = " + str(pay))
 print("Charger cost = " + str(sum([w.price for w in chargers])))
 print("Mean cycles remaining = " + str(sum([c.battery.cycles for c in busses])/len(busses)))
+with open("f.json",'w') as f:
+	json.dump(json_file, f)

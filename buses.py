@@ -152,8 +152,9 @@ class HP:
 #Routes
 #Setup in JSON-style dictionary array format
 		#km	  #min			  #min	                   #min                    #min                    #min     #m            #s
-def makeRoute(distance, duration, t1_passengers, t1_freq, t2_passengers, t2_freq, t3_passengers, t3_freq, t4_passengers, t4_freq, stop_freq, stop_duration):
-	routeDict   =  {'distance':distance,
+def makeRoute(name, distance, duration, t1_passengers, t1_freq, t2_passengers, t2_freq, t3_passengers, t3_freq, t4_passengers, t4_freq, stop_freq, stop_duration):
+	routeDict   =  {'_id' : name,
+			'distance':distance,
 			'duration':duration,
 			't1':
 				{'passengers':t1_passengers,
@@ -173,17 +174,17 @@ def makeRoute(distance, duration, t1_passengers, t1_freq, t2_passengers, t2_freq
 	return routeDict
 
 
-R1 = makeRoute(20, 60, 700, 10, 700, 10, 700, 10, 700, 10, 10000, 8*60)
-R2 = makeRoute(10, 40, 2000, 10, 300, 20, 2000, 10, 300, 20, 300, 10)
-R3 = makeRoute(15, 55, 2000, 10, 300, 20, 2000, 10, 300, 20, 500, 10)
-R4 = makeRoute(7, 20, 300, 20, 200, 30, 300, 20, 200, 30, 700, 10)
-R5 = makeRoute(6, 20, 2000, 10, 300, 10, 2000, 10, 300, 10, 300, 10)
-R6 = makeRoute(20, 60, 1500, 10, 200, 20, 1500, 10, 200, 20, 1000, 20)
-R7 = makeRoute(10, 40, 3300, 10, 1000, 10, 3300, 10, 1000, 10, 500, 10)
-R8 = makeRoute(25, 70, 1600, 20, 800, 20, 1600, 20, 800, 20, 1000, 20)
-R9 = makeRoute(35, 60, 600, 30, 200, 30, 600, 30, 200, 30, 2000, 20)
-R10= makeRoute(30, 60, 1000, 30, 600, 30, 1000, 30, 600, 30, 3000, 20)
-R11= makeRoute(40, 70, 400, 30, 100, 60, 400, 30, 100, 60, 3000, 20)
-R12= makeRoute(35, 60, 1000, 30, 200, 60, 1000, 60, 200, 30, 2000, 20)
+R1 = makeRoute(1, 20, 60, 700, 10, 700, 10, 700, 10, 700, 10, 10000, 8*60)
+R2 = makeRoute(2, 10, 40, 2000, 10, 300, 20, 2000, 10, 300, 20, 300, 10)
+R3 = makeRoute(3, 15, 55, 2000, 10, 300, 20, 2000, 10, 300, 20, 500, 10)
+R4 = makeRoute(4, 7, 20, 300, 20, 200, 30, 300, 20, 200, 30, 700, 10)
+R5 = makeRoute(5, 6, 20, 2000, 10, 300, 10, 2000, 10, 300, 10, 300, 10)
+R6 = makeRoute(6, 20, 60, 1500, 10, 200, 20, 1500, 10, 200, 20, 1000, 20)
+R7 = makeRoute(7, 10, 40, 3300, 10, 1000, 10, 3300, 10, 1000, 10, 500, 10)
+R8 = makeRoute(8, 25, 70, 1600, 20, 800, 20, 1600, 20, 800, 20, 1000, 20)
+R9 = makeRoute(9, 35, 60, 600, 30, 200, 30, 600, 30, 200, 30, 2000, 20)
+R10= makeRoute(10, 30, 60, 1000, 30, 600, 30, 1000, 30, 600, 30, 3000, 20)
+R11= makeRoute(11, 40, 70, 400, 30, 100, 60, 400, 30, 100, 60, 3000, 20)
+R12= makeRoute(12, 35, 60, 1000, 30, 200, 60, 1000, 60, 200, 30, 2000, 20)
 
 routes = [R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12]
