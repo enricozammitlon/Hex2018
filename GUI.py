@@ -7,14 +7,15 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-
+import time
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import random
 from time import sleep
-import json
+import json,codecs
+from pprint import pprint
 APP_NAME="Down To Bus-iness"
 
 try:
@@ -32,67 +33,38 @@ except AttributeError:
         return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
+
+    def init(self):
 
         self.AllData=[
             {
-                "route":1,
-                "noOfBusses":2,
+                "route":i+1,
                 "busses":[
                     {
                         "ID" :1,
+                        "Time Created":0,
                         "Type":"LE",
-                        "Velocity":0.1
-                    },
-                    {
-                        "ID":2,
-                        "Type":"LF",
-                        "Velocity":0.1
+                        "Velocity":0.05,
+                        "Status":"Available"
                     }
                 ]
-            },
-            {
-                "route":2,
-                "noOfBusses":2,
-                "busses":[
-                    {
-                        "ID":1,
-                        "Type":"LE",
-                        "Velocity":0.1
-                    },
-                    {
-                        "ID":2,
-                        "Type":"LF",
-                        "Velocity":0.1
-                    }
-                ]
-
-            },
-            {
-                "route":3,
-                "noOfBusses":3,
-                "busses":[
-                    {
-                        "ID":1,
-                        "Type":"LE",
-                        "Velocity":0.1
-                    },
-                    {
-                        "ID":2,
-                        "Type":"LF",
-                        "Velocity":0.1
-                    },
-                    {
-                        "ID":3,
-                        "Type":"LF",
-                        "Velocity":0.1
-                    }
-                ]
-
-            }
-            #,{},{},{},{},{},{},{},{},{},{},{}
+            }for i in range(12)
         ]
 
+
+        self.totalEvents = []
+        with codecs.open('f.json','rU','utf-8') as f:
+            for line in f:
+                self.totalEvents.append(json.loads(line))
+
+
+        self.updateCounter=[0,0,0,0,0,0,0,0,0,0,0,0]
+        #self.totalEvents=json.loads(open('f.json'))
+
+
+    def setupUi(self, MainWindow):
+
+        self.init()
 
         MainWindow.setObjectName(_fromUtf8(APP_NAME))
         MainWindow.resize(800, 600)
@@ -115,9 +87,22 @@ class Ui_MainWindow(object):
         self.line_2.setFrameShape(QtGui.QFrame.HLine)
         self.line_2.setFrameShadow(QtGui.QFrame.Sunken)
         self.line_2.setObjectName(_fromUtf8("line_2"))
+
         self.label_2 = QtGui.QLabel(self.centralWidget)
         self.label_2.setGeometry(QtCore.QRect(160, 0, 62, 20))
         self.label_2.setObjectName(_fromUtf8("label_2"))
+
+        self.label_3 = QtGui.QLabel(self.centralWidget)
+        self.label_3.setGeometry(QtCore.QRect(300, 0, 62, 20))
+        self.label_3.setObjectName(_fromUtf8("label_3"))
+
+        self.currentTime=QtGui.QTextEdit(self.centralWidget)
+        self.currentTime.setGeometry(QtCore.QRect(360, 0, 82, 30))
+        self.currentTime.setReadOnly(True)
+        self.currentTime.setLineWrapMode(QtGui.QTextEdit.NoWrap)
+        font = self.currentTime.font()
+        font.setFamily("Courier")
+        font.setPointSize(10)
 
         # a figure instance to plot on
         self.widget = QtGui.QWidget(self.centralWidget)
@@ -155,7 +140,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
 
         self.logOutput=QtGui.QTextEdit(self.scrollAreaWidgetContents)
-        self.logOutput.setGeometry(QtCore.QRect(10, 20, 181, 51))
+        self.logOutput.setGeometry(QtCore.QRect(10, 20, 181, 91))
         self.logOutput.setReadOnly(True)
         self.logOutput.setLineWrapMode(QtGui.QTextEdit.NoWrap)
         font = self.logOutput.font()
@@ -185,8 +170,42 @@ class Ui_MainWindow(object):
         self.playpause=1
         self.anim()
 
+    def startBus(self,route,busid,bustype):
+        self.AllData[route]['busses'].append(
+            {"ID" :busid,
+            "Type":bustype,
+            "Velocity":0.05,
+            "Status":"Available"})
+        print("Should add now")
+        ax=self.totalAx[route]
+        self.steps[route].append(0.05)
+        self.currentPos[route].append(0)
+        self.outbound[route].append(1)
+        self.drawings[route].append(plt.plot([0], [1], marker='o', markersize=6, color=self.colorCodes[bustype])[0])
+
+
+
+    def parkBus(self,route,busid):
+        for bus in self.AllData[route]['busses']:
+            if bus['ID'==busid]:
+                bus['status']='Charging'
     def anim(self):
+        start_time = time.time()
+        print(self.totalEvents)
+
         while(self.playpause!=2):
+            elapsed_time = time.time() - start_time
+            timeInSecs=elapsed_time*5
+            for i in range(12):
+                a=self.totalEvents[0]['1'][self.updateCounter[i]]
+                #pprint(a)
+                if(a['status']==True and float(a['created_at'])<=timeInSecs):
+                    #print("Doing it")
+                    self.startBus(i,(a["_id"]),a[" _type"])
+                    self.updateCounter[i]+=1
+
+            self.currentTime.setText(time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
+
             for route in range(len(self.drawings)):
                 for bus in range(len(self.AllData[route]['busses'])):
                     step=self.steps[route][bus]
@@ -231,20 +250,23 @@ class Ui_MainWindow(object):
             self.ax.plot(ones, 'g')
             self.pres.append([0])
             for currentBus in route['busses']:
-                self.steps[route['route']-1].append(random.uniform(0.09,0.000001))
+                #self.steps[route['route']-1].append(random.uniform(0.09,0.000001))
+                self.steps[route['route']-1].append(currentBus['Velocity'])
                 self.currentPos[route['route']-1].append(0)
                 self.outbound[route['route']-1].append(1)
-                self.drawings[route['route']-1].append(plt.plot([0], [1], marker='o', markersize=6, color=self.colorCodes[currentBus["Type"]],gid="%s&%s"%(route['route'],currentBus['ID']))[0])
+                self.drawings[route['route']-1].append(plt.plot([0], [1], marker='o', markersize=6, color=self.colorCodes[currentBus["Type"]],gid="%s&%s&%s"%(route['route'],currentBus['ID'],currentBus['Type']))[0])
             self.fig.canvas.mpl_connect('motion_notify_event', self.on_plot_hover)
             self.totalAx.append(self.ax)
         # refresh canvas
 
         self.canvas.draw()
 
+
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate(APP_NAME, APP_NAME, None))
         self.label.setText(_translate(APP_NAME, "Bus Information", None))
         self.label_2.setText(_translate(APP_NAME, "Visualise", None))
+        self.label_3.setText(_translate(APP_NAME, "Time:", None))
         self.playButton.setText(_translate(APP_NAME, "Play", None))
         self.pauseButton.setText(_translate(APP_NAME, "Pause", None))
 
@@ -255,7 +277,7 @@ class Ui_MainWindow(object):
                     gid="%s" % curve.get_gid()
                     if(gid!="None"):
                         a=gid.split("&")
-                        INFO="Route Number: %s\nBus Number: %s "%(a[0],a[1])
+                        INFO="Route Number: %s\nBus Number: %s\nBus Type:%s "%(a[0],a[1],a[2])
                         self.logOutput.setText("%s" % INFO)
 
 if __name__ == "__main__":
