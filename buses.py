@@ -45,11 +45,16 @@ class bus:
 	def __init__(self, battery, route):
 		self.battery = battery
 		self.route = route.copy()
-		self.energy = battery.energy_rho * battery.weight
+		self.energy = battery.energy_rho * battery.weight/1000		#in kWh
 		self.velocity = route['distance']/route['duration']		#in km/min
 	def newRoute(self, route):
-		self.route = route.copy()
-		self.velocity = route['distance']/route['duration']		#In km/min
+		if route == None:
+			self.route = None
+			self.velocity = 0
+		else:
+			self.route = route.copy()
+			self.velocity = route['distance']/route['duration']		#In km/min
+			self.available = False
 
 class LE(bus):
 	def price(self):
@@ -69,8 +74,6 @@ class LF(bus):
 	length = 12000 #mm
 	max_weight = 19500 #kg
 	unladen_weight = 10645 #kg
-#	def weight(self):
-#	return self.max_weight - self.unladen_weight - self.battery.weight
 	def weight(self):
 		people_weight =  self.max_weight - self.unladen_weight - self.battery.weight
 		self.people = people_weight/passenger_weight
@@ -83,8 +86,6 @@ class LFA(bus):
 	length = 18750 #mm
 	max_weight  = 29000 #kg
 	unladen_weight = 16125 #kg
-#	def weight(self):
-#      		return self.max_weight - self.unladen_weight - self.battery.weight
 	def weight(self):
 		people_weight =  self.max_weight - self.unladen_weight - self.battery.weight
 		self.people = people_weight/passenger_weight
