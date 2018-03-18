@@ -5,6 +5,8 @@ if __name__ == '__main__':
 	print("Why are you doing this?")
 
 #Constants
+#Efficiency of the motor is assumed to be 1.5 kWh/km
+	
 maintanance = 0.3 #EUR/km
 
 charging_energy = 0.1 #EUR/kW
@@ -38,41 +40,55 @@ class C:
 #Buses
 class bus:
 	available = False
+	distance_travelled = 0
+	energy_used = 0
 	def __init__(self, battery, route):
 		self.battery = battery
 		self.route = route.copy()
-	
+		self.energy = battery.energy_rho * battery.weight
+		self.velocity = route['distance']/route['duration']		#in km/min
 	def newRoute(self, route):
 		self.route = route.copy()
+		self.velocity = route['distance']/route['duration']		#In km/min
 
 class LE(bus):
 	def price(self):
 		return  350000 + self.battery.price #EUR
+	bus_type = 'LE'
 	length = 9950 #mm
 	max_weight = 14870 #kg
 	unladen_weight = 7930 #kg
 	def weight(self):
-       		return self.max_weight - self.unladen_weight - self.battery.weight
-
+		people_weight =  self.max_weight - self.unladen_weight - self.battery.weight
+		self.people = people_weight/passenger_weight
+		return people_weight
 class LF(bus):
-#price = 390000 + battery.price #EUR
 	def price(self):
 		return  390000 + self.battery.price #EUR
+	bus_type = 'LF'
 	length = 12000 #mm
 	max_weight = 19500 #kg
 	unladen_weight = 10645 #kg
+#	def weight(self):
+#	return self.max_weight - self.unladen_weight - self.battery.weight
 	def weight(self):
-       		return self.max_weight - self.unladen_weight - self.battery.weight
+		people_weight =  self.max_weight - self.unladen_weight - self.battery.weight
+		self.people = people_weight/passenger_weight
+		return people_weight
 
 class LFA(bus):
-#	price = 570000 + battery.price #EUR
 	def price(self):
 		return  570000 + self.battery.price #EUR
+	bus_type = 'LFA'
 	length = 18750 #mm
 	max_weight  = 29000 #kg
 	unladen_weight = 16125 #kg
+#	def weight(self):
+#      		return self.max_weight - self.unladen_weight - self.battery.weight
 	def weight(self):
-       		return self.max_weight - self.unladen_weight - self.battery.weight
+		people_weight =  self.max_weight - self.unladen_weight - self.battery.weight
+		self.people = people_weight/passenger_weight
+		return people_weight
 
 
 
@@ -87,7 +103,7 @@ def busGen(route, time):
 		LFA(HP(route['distance']), route)
 	]
 
-	return min([x.price() for x in busWeights if x.weight() >= passenger_weight * route[time]['passengers'] * route[time]['frequency']/(4*60)])
+	return min([x for x in busWeights if x.weight() >= passenger_weight * route[time]['passengers'] * route[time]['frequency']/(4*60)], key=lambda y: y.price())
 
 		
 
