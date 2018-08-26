@@ -111,3 +111,6 @@ conf.py
 
 #vim swap files
 *.swp
+
+#JSON files
+*.json
