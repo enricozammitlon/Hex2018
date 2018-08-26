@@ -1,3 +1,7 @@
 # Hex2018
 
-Raw data analysis branch. No machine learning used for now.
+Entry to the Future Mobility track at Hex2018.
+
+Finally committed to GitHub 5 months later!
+
+To run the simulation, run `python3 assign.py`
